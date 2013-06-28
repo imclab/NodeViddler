@@ -22,7 +22,7 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 				|| response.error
 			){
 				console.log("Auth failed", response);
-				if(onFail) onFail.call(null, self);
+				if(onFail) onFail.call(null, response);
 				return;
 			}
 			console.log("Auth Success", response);
@@ -39,7 +39,7 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 				|| response.error
 			){
 				console.log("Prepare Upload failed", response);
-				if(onFail) onFail.call(null, self);
+				if(onFail) onFail.call(null, response);
 				return;
 			}
 
@@ -64,8 +64,10 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 			);
 
 			var recursiveProgress = function(response, success){
-				console.log(response);
 				if(response && response.upload_progress.status != 1) return;
+
+				console.log(response);
+
 				getProgress(data.uploadtoken, sessionid,function (_response, _success) {
 					setTimeout(function() {
 						recursiveProgress(_response, _success)
@@ -83,7 +85,7 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 				|| response.error
 			){
 				console.log("Upload failed", response);
-				if(onFail) onFail.call(null, self);
+				if(onFail) onFail.call(null, response);
 				return;
 			}
 
@@ -94,8 +96,8 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 		// load file and  go!
 		fs.stat(videoData.filename, function(err, stats) {
 			if(err){
-				console.log("Couldn't load file", response);
-				if(onFail) onFail.call(null, self);
+				console.log("Couldn't load file", err);
+				if(onFail) onFail.call(null, err);
 				return;
 			}
 			videoData.file = restler.file(videoData.filename, null, stats.size, null);
@@ -177,19 +179,11 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 	var callEndpoint = function (endpoint, method, data, callback) {
 		var uri = endpoint;
 		var cb = function (error, response, body) {
-			var json = {}
-			try{
-				json = JSON.parse(body)
-			}
-			catch(error){
-				console.log('Cannont parse response.body to JSON',  body)
-			}
-
-			if (!error && response.statusCode == 200) {
-				if(callback) callback.call(null, json, true);
+			if (!error) {
+				if(callback) callback.call(null, body, true);
 			}
 			else{
-				if(callback) callback.call(null, json, false);
+				if(callback) callback.call(null, body, false);
 			}
 		}
 
@@ -200,14 +194,16 @@ var Viddler = function (API_KEY, USER, PASSWORD) {
 			}
 		}
 
-		console.log(endpoint, data);
-
 		restler[method](uri, {
 			multipart: true,
 			data: data
 
-		}).on("complete", function(data) {
-			console.log(data);
+		}).on("success", function(data, response) {
+			cb(null, response, data)
+		}).on("fail", function(data, response) {
+			cb("request fail", response, data)
+		}).on("error", function(err, response) {
+			cb("request err", response, err)
 		});
 	}
 	self.doUpload = doUpload;
