@@ -1,6 +1,6 @@
 {
   "name": "viddler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Minimal node.js module for interacting with Viddler's API.",
   "tags": [
     "viddler",
