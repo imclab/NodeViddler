@@ -1,0 +1,25 @@
+{
+  "name": "viddler",
+  "version": "0.0.1",
+  "description": "Minimal node.js module for interacting with Viddler's API.",
+  "tags": [
+    "viddler",
+    "video"
+  ],
+  "author": {
+    "name": "Paulo Barcelos",
+    "email": "paulo.barcelos@oakwood.se"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oakwood/NodeViddler.git"
+  },
+  "main": "viddler.js",
+  "engines": {
+    "node": ">= 0.6.x"
+  },
+  "dependencies": {
+    "request": "2.21.0",
+    "restler": "2.0.1"
+  }
+}
